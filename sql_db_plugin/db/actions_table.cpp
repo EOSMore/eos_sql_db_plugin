@@ -80,7 +80,7 @@ namespace eosio {
 
             try {
                 *m_session
-                        << "INSERT INTO actions(account, seq, created_at, name, data, transaction_id, eosto, eosfrom, receiver, symbol, payer, newaccount, sellram_account) VALUES (:ac, :se, FROM_UNIXTIME(:ca), :na, :da, :ti, :to, :form, :receiver, :payer, :newaccount, :sellram_account) ",
+                        << "INSERT INTO actions(account, seq, created_at, name, data, transaction_id, eosto, eosfrom, receiver, symbol, payer, newaccount, sellram_account) VALUES (:ac, :se, FROM_UNIXTIME(:ca), :na, :da, :ti, :to, :form, :receiver, :symbol, :payer, :newaccount, :sellram_account) ",
                         soci::use(action.account.to_string()),
                         soci::use(seq),
                         soci::use(expiration),
