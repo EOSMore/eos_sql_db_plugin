@@ -100,13 +100,6 @@ namespace eosio {
                 wlog("${data}", ("data", fc::json::to_string(action)));
             }
 
-            for (const auto &auth : action.authorization) {
-                *m_session
-                        << "INSERT INTO actions_accounts(action_id, actor, permission) VALUES (LAST_INSERT_ID(), :ac, :pe) ",
-                        soci::use(auth.actor.to_string()),
-                        soci::use(auth.permission.to_string());
-            }
-
             try {
                 parse_actions(action);
             } catch (std::exception &e) {
@@ -123,25 +116,6 @@ namespace eosio {
             auto action_data = action.data_as<chain::newaccount>();
             *m_session << "INSERT INTO accounts (name) VALUES (:name)",
                     soci::use(action_data.name.to_string());
-
-            for (const auto& key_owner : action_data.owner.keys) {
-                string permission_owner = "owner";
-                string public_key_owner = static_cast<string>(key_owner.key);
-                *m_session << "INSERT INTO accounts_keys(account, public_key, permission) VALUES (:ac, :ke, :pe) ",
-                        soci::use(action_data.name.to_string()),
-                        soci::use(public_key_owner),
-                        soci::use(permission_owner);
-            }
-
-            for (const auto& key_active : action_data.active.keys) {
-                string permission_active = "active";
-                string public_key_active = static_cast<string>(key_active.key);
-                *m_session << "INSERT INTO accounts_keys(account, public_key, permission) VALUES (:ac, :ke, :pe) ",
-                        soci::use(action_data.name.to_string()),
-                        soci::use(public_key_active),
-                        soci::use(permission_active);
-            }
-
         }
     }
 
