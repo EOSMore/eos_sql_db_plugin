@@ -66,7 +66,8 @@ namespace eosio {
                     && action.name.to_string() != "sellram"
                     && action.name.to_string() != "delegatebw"
                     && action.name.to_string() != "undelegatebw"
-                    && action.name.to_string() != "refund" ) {
+                    && action.name.to_string() != "refund"
+                    && action.name.to_string() != "setabi") {
                 return;
             }
 
