@@ -19,11 +19,12 @@ using std::string;
 
 struct system_contract_arg{
     system_contract_arg() = default;
-    system_contract_arg(const chain::account_name& to, const chain::account_name& from, const chain::account_name& receiver, const chain::account_name& payer, const chain::account_name& name)
-    :to(to), from(from), receiver(receiver), payer(payer), name(name)
+    system_contract_arg(const chain::account_name& to, const chain::account_name& from, const chain::asset& quantity, const chain::account_name& receiver, const chain::account_name& payer, const chain::account_name& name)
+    :to(to), from(from), quantity(quantity), receiver(receiver), payer(payer), name(name)
     {}
     chain::account_name to;
     chain::account_name from;
+    chain::asset quantity;
     chain::account_name receiver;
     chain::account_name payer;
     chain::account_name name;

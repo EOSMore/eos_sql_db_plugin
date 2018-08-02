@@ -57,55 +57,73 @@ namespace eosio {
     }
 
     void actions_table::add(chain::action action, chain::transaction_id_type transaction_id, fc::time_point_sec transaction_time, uint8_t seq) {
+        //only transfer and system action
+        if(action.name.to_string() == "transfer" || action.account.to_string() == "eosio") {
 
-        if(action.name.to_string() == "onblock") return ; //system contract abi haven't onblock, so we could get abi_data.
+            if (action.name.to_string() != "transfer"
+                    && action.name.to_string() != "buyrambytes"
+                    && action.name.to_string() != "buyram"
+                    && action.name.to_string() != "sellram"
+                    && action.name.to_string() != "delegatebw"
+                    && action.name.to_string() != "undelegatebw"
+                    && action.name.to_string() != "refund" ) {
+                return;
+            }
 
-        chain::abi_def abi;
-        std::string abi_def_account;
-        chain::abi_serializer abis;
-        soci::indicator ind;
-        const auto transaction_id_str = transaction_id.str();
-        const auto expiration = boost::chrono::seconds{transaction_time.sec_since_epoch()}.count();
+            if (action.name.to_string() == "onblock")
+                return; //system contract abi haven't onblock, so we could get abi_data.
 
-        string json = add_data(action);
-        system_contract_arg dataJson = fc::json::from_string(json).as<system_contract_arg>();
-        // ilog("${to} , ${from} , ${receiver} , ${name}",("to",dataJson.to.to_string())("from",dataJson.from.to_string())("receiver",dataJson.receiver.to_string())("name",dataJson.name.to_string()) );
+            chain::abi_def abi;
+            std::string abi_def_account;
+            chain::abi_serializer abis;
+            soci::indicator ind;
+            const auto transaction_id_str = transaction_id.str();
+            const auto expiration = boost::chrono::seconds{transaction_time.sec_since_epoch()}.count();
 
-        boost::uuids::random_generator gen;
-        boost::uuids::uuid id = gen();
-        std::string action_id = boost::uuids::to_string(id);
+            string json = add_data(action);
+            system_contract_arg dataJson = fc::json::from_string(json).as<system_contract_arg>();
+            // ilog("${to} , ${from} , ${receiver} , ${name}",("to",dataJson.to.to_string())("from",dataJson.from.to_string())("receiver",dataJson.receiver.to_string())("name",dataJson.name.to_string()) );
 
-        try{
-            *m_session << "INSERT INTO actions(account, seq, created_at, name, data, transaction_id, eosto, eosfrom, receiver, payer, newaccount, sellram_account) VALUES (:ac, :se, FROM_UNIXTIME(:ca), :na, :da, :ti, :to, :form, :receiver, :payer, :newaccount, :sellram_account) ",
-                soci::use(action.account.to_string()),
-                soci::use(seq),
-                soci::use(expiration),
-                soci::use(action.name.to_string()),
-                soci::use(json),
-                soci::use(transaction_id_str),
-                soci::use(dataJson.to.to_string()),
-                soci::use(dataJson.from.to_string()),
-                soci::use(dataJson.receiver.to_string()),
-                soci::use(dataJson.payer.to_string()),
-                soci::use(dataJson.name.to_string()),
-                soci::use(dataJson.account.to_string());
-        } catch(...) {
-            wlog("insert action failed in ${n}::${a}",("n",action.account.to_string())("a",action.name.to_string()));
-            wlog("${data}",("data",fc::json::to_string(action)));
-        }
+            boost::uuids::random_generator gen;
+            boost::uuids::uuid id = gen();
+            std::string action_id = boost::uuids::to_string(id);
 
-        for (const auto& auth : action.authorization) {
-            *m_session << "INSERT INTO actions_accounts(action_id, actor, permission) VALUES (LAST_INSERT_ID(), :ac, :pe) ",
-                    soci::use(auth.actor.to_string()),
-                    soci::use(auth.permission.to_string());
-        }
+            try {
+                *m_session
+                        << "INSERT INTO actions(account, seq, created_at, name, data, transaction_id, eosto, eosfrom, receiver, symbol, payer, newaccount, sellram_account) VALUES (:ac, :se, FROM_UNIXTIME(:ca), :na, :da, :ti, :to, :form, :receiver, :payer, :newaccount, :sellram_account) ",
+                        soci::use(action.account.to_string()),
+                        soci::use(seq),
+                        soci::use(expiration),
+                        soci::use(action.name.to_string()),
+                        soci::use(json),
+                        soci::use(transaction_id_str),
+                        soci::use(dataJson.to.to_string()),
+                        soci::use(dataJson.from.to_string()),
+                        soci::use(dataJson.receiver.to_string()),
+                        soci::use(dataJson.quantity.symbol.to_string()),
+                        soci::use(dataJson.payer.to_string()),
+                        soci::use(dataJson.name.to_string()),
+                        soci::use(dataJson.account.to_string());
+            } catch (...) {
+                wlog("insert action failed in ${n}::${a}",
+                     ("n", action.account.to_string())("a", action.name.to_string()));
+                wlog("${data}", ("data", fc::json::to_string(action)));
+            }
 
-        try {
-            parse_actions( action );
-        } catch(std::exception& e){
-            wlog(e.what());
-        } catch(...){
-            wlog("Unknown excpetion.");
+            for (const auto &auth : action.authorization) {
+                *m_session
+                        << "INSERT INTO actions_accounts(action_id, actor, permission) VALUES (LAST_INSERT_ID(), :ac, :pe) ",
+                        soci::use(auth.actor.to_string()),
+                        soci::use(auth.permission.to_string());
+            }
+
+            try {
+                parse_actions(action);
+            } catch (std::exception &e) {
+                wlog(e.what());
+            } catch (...) {
+                wlog("Unknown excpetion.");
+            }
         }
     }
 
