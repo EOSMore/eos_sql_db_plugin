@@ -61,7 +61,7 @@ namespace eosio
 
                 // ilog("run irreversible");
 
-                m_transactions_table->add(trx);
+                //m_transactions_table->add(trx);
                 for(auto actions : trx.actions){
                     uint8_t seq = 0;
                     m_actions_table->add(actions,trx.id(), trx.expiration, seq);
@@ -81,11 +81,11 @@ namespace eosio
                 trx_id_str = receipt.trx.get<chain::transaction_id_type>().str();
             }
 
-            auto ir_trans = m_transactions_table->find_transaction(trx_id_str);
-
-            if(ir_trans){
-                m_transactions_table->irreversible_set(block_id, true, trx_id_str);
-            }
+//            auto ir_trans = m_transactions_table->find_transaction(trx_id_str);
+//
+//            if(ir_trans){
+//                m_transactions_table->irreversible_set(block_id, true, trx_id_str);
+//            }
 
         }
 
@@ -95,7 +95,7 @@ namespace eosio
 
         if(tm->trx.actions.size()==1 && tm->trx.actions[0].name.to_string() == "onblock" ) return ;
 
-        m_transactions_table->add(tm->trx);
+        //m_transactions_table->add(tm->trx);
         for(auto actions : tm->trx.actions){
             uint8_t seq = 0;
             m_actions_table->add(actions,tm->trx.id(), tm->trx.expiration, seq);
