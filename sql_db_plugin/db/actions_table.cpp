@@ -100,7 +100,7 @@ namespace eosio {
                         soci::use(dataJson.to.to_string()),
                         soci::use(dataJson.from.to_string()),
                         soci::use(dataJson.receiver.to_string()),
-                        soci::use(dataJson.quantity.symbol.to_string()),
+                        soci::use(dataJson.quantity.symbol_name()),
                         soci::use(dataJson.payer.to_string()),
                         soci::use(dataJson.name.to_string()),
                         soci::use(dataJson.account.to_string());
