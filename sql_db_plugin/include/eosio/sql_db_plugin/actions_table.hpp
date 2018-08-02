@@ -52,7 +52,7 @@ class actions_table : public mysql_table {
 
 
 } // namespace
-FC_REFLECT( eosio::system_contract_arg                        , (to)(from)(receiver)(payer)(name)(account) )
+FC_REFLECT( eosio::system_contract_arg                        , (to)(from)(quantity)(receiver)(payer)(name)(account) )
 
 
 
