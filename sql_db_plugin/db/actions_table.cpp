@@ -60,18 +60,6 @@ namespace eosio {
         //only transfer and system action
         if(action.name.to_string() == "transfer" || action.account.to_string() == "eosio") {
 
-            if (action.name.to_string() == "transfer"
-                    && action.name.to_string() != "buyrambytes"
-                    && action.name.to_string() != "buyram"
-                    && action.name.to_string() != "sellram"
-                    && action.name.to_string() != "delegatebw"
-                    && action.name.to_string() != "undelegatebw"
-                    && action.name.to_string() != "refund"
-                    && action.name.to_string() != "newaccount"
-                    && action.name.to_string() != "setabi") {
-                return;
-            }
-
             if (action.name.to_string() == "onblock")
                 return; //system contract abi haven't onblock, so we could get abi_data.
 
